@@ -4,7 +4,19 @@ import { useEffect, useState, use } from 'react';
 import Link from 'next/link';
 import type { VideoAttributes } from 'missav-api';
 import { getVideo, getRelatedVideos } from '@/lib/api';
-import VideoPlayer from '@/components/VideoPlayer';
+import dynamic from 'next/dynamic';
+
+const VideoPlayer = dynamic(() => import('@/components/VideoPlayer'), {
+  ssr: false,
+  loading: () => (
+    <div className="w-full aspect-video flex items-center justify-center bg-black/60 rounded-2xl">
+      <div className="flex flex-col items-center gap-3">
+        <div className="w-10 h-10 border-2 border-primary-500/30 border-t-primary-500 rounded-full animate-spin" />
+        <p className="text-sm text-gray-400">Loading player...</p>
+      </div>
+    </div>
+  ),
+});
 import VideoCard from '@/components/VideoCard';
 
 interface VideoPageProps {

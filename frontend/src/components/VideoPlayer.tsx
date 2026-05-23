@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import Plyr from 'plyr';
 import 'plyr/dist/plyr.css';
+import type Hls from 'hls.js';
 
 interface VideoPlayerProps {
   src: string;
@@ -16,7 +17,7 @@ export default function VideoPlayer({ src, poster }: VideoPlayerProps) {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    let hls: any = null;
+    let hls: Hls | null = null;
     const video = videoRef.current;
     if (!video) return;
 
@@ -29,40 +30,45 @@ export default function VideoPlayer({ src, poster }: VideoPlayerProps) {
       : src;
 
     const initPlayer = () => {
-      playerRef.current = new Plyr(video, {
-        controls: [
-          'play-large',
-          'rewind',
-          'play',
-          'fast-forward',
-          'progress',
-          'current-time',
-          'duration',
-          'mute',
-          'volume',
-          'settings',
-          'fullscreen',
-        ],
-        settings: ['speed'],
-        speed: {
-          selected: 1,
-          options: [0.5, 0.75, 1, 1.25, 1.5, 1.75, 2],
-        },
-        seekTime: 10,
-        ratio: '16:9',
-        resetOnEnd: true,
-        fullscreen: { enabled: true, fallback: true, iosNative: true },
-        keyboard: { focused: true, global: true },
-        tooltips: { controls: true, seek: true },
-        storage: { enabled: true, key: 'plyr' },
-      });
-      setIsLoading(false);
+      try {
+        playerRef.current = new Plyr(video, {
+          controls: [
+            'play-large',
+            'rewind',
+            'play',
+            'fast-forward',
+            'progress',
+            'current-time',
+            'duration',
+            'mute',
+            'volume',
+            'settings',
+            'fullscreen',
+          ],
+          settings: ['speed'],
+          speed: {
+            selected: 1,
+            options: [0.5, 0.75, 1, 1.25, 1.5, 1.75, 2],
+          },
+          seekTime: 10,
+          ratio: '16:9',
+          resetOnEnd: true,
+          fullscreen: { enabled: true, fallback: true, iosNative: true },
+          keyboard: { focused: true, global: true },
+          tooltips: { controls: true, seek: true },
+          storage: { enabled: true, key: 'plyr' },
+        });
+        setIsLoading(false);
+      } catch {
+        // Plyr failed to load — still hide loading so native controls show
+        setIsLoading(false);
+      }
     };
 
     const startPlayback = async () => {
       try {
         if (src.endsWith('.m3u8')) {
-          const Hls = (await import('hls.js')).default;
+          const { default: Hls } = await import('hls.js');
 
           if (Hls.isSupported()) {
             hls = new Hls({
@@ -83,7 +89,7 @@ export default function VideoPlayer({ src, poster }: VideoPlayerProps) {
               }
             });
 
-            // Safety timeout: remove loading overlay after 20s even if manifest hasn't parsed
+            // Safety timeout: remove loading overlay after 20s
             const loadingTimeout = setTimeout(() => {
               setIsLoading(false);
             }, 20000);
@@ -140,6 +146,7 @@ export default function VideoPlayer({ src, poster }: VideoPlayerProps) {
         poster={poster}
         playsInline
         preload="metadata"
+        controls
       />
 
       {/* Loading overlay */}
@@ -170,7 +177,7 @@ export default function VideoPlayer({ src, poster }: VideoPlayerProps) {
               />
             </svg>
             <p className="text-sm text-red-300">{error}</p>
-            <p className="text-xs text-gray-500 mt-2">The stream URL may be expired or unavailable.</p>
+            <p className="text-xs text-gray-500 mt-2">The stream URL may be unavailable or expired.</p>
           </div>
         </div>
       )}
