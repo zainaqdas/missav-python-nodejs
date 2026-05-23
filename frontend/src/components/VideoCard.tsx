@@ -13,6 +13,11 @@ export default function VideoCard({ video, index = 0 }: VideoCardProps) {
   const [imageError, setImageError] = useState(false);
   const videoCode = video.videoCode?.toLowerCase() || 'unknown';
 
+  // Proxy thumbnail through our server to avoid fourhoi.com referrer blocking
+  const thumbUrl = video.thumbnail?.startsWith('http')
+    ? `/api/thumb?url=${encodeURIComponent(video.thumbnail)}`
+    : video.thumbnail;
+
   return (
     <Link
       href={`/video/${encodeURIComponent(videoCode)}`}
@@ -23,7 +28,7 @@ export default function VideoCard({ video, index = 0 }: VideoCardProps) {
       <div className="relative aspect-video overflow-hidden bg-surface-lighter">
         {!imageError ? (
           <img
-            src={video.thumbnail}
+            src={thumbUrl}
             alt={video.title}
             onError={() => setImageError(true)}
             className="w-full h-full object-cover transition-all duration-500 group-hover:scale-110 group-hover:brightness-110"

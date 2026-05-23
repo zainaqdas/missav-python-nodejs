@@ -56,6 +56,11 @@ export default function VideoPage({ params }: VideoPageProps) {
   const [imageError, setImageError] = useState(false);
   const [relatedVideos, setRelatedVideos] = useState<RelatedVideo[]>([]);
 
+  // Proxy thumbnail through our server to avoid fourhoi.com referrer blocking
+  const posterUrl = video?.thumbnail?.startsWith('http')
+    ? `/api/thumb?url=${encodeURIComponent(video.thumbnail)}`
+    : video?.thumbnail;
+
   useEffect(() => {
     const fetchVideo = async () => {
       setIsLoading(true);
@@ -162,12 +167,12 @@ export default function VideoPage({ params }: VideoPageProps) {
             {video.m3u8BaseUrl ? (
               <VideoPlayer
                 src={video.m3u8BaseUrl}
-                poster={!imageError ? video.thumbnail : undefined}
+                poster={!imageError ? posterUrl : undefined}
               />
             ) : !imageError ? (
               <div className="glass-card rounded-2xl overflow-hidden">
                 <img
-                  src={video.thumbnail}
+                  src={posterUrl || video.thumbnail}
                   alt={video.title}
                   onError={() => setImageError(true)}
                   className="w-full aspect-video object-cover"
@@ -263,7 +268,7 @@ export default function VideoPage({ params }: VideoPageProps) {
                       <div className="w-24 h-16 shrink-0 rounded-lg overflow-hidden bg-surface-lighter">
                         {rv.thumbnail ? (
                           <img
-                            src={rv.thumbnail}
+                            src={rv.thumbnail?.startsWith('http') ? `/api/thumb?url=${encodeURIComponent(rv.thumbnail)}` : rv.thumbnail}
                             alt={rv.title}
                             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                             onError={(e) => {
