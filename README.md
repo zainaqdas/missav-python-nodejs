@@ -386,7 +386,7 @@ The frontend runs entirely on client-side rendering (CSR) for API-fetching pages
 **Node (backend):**
 - `axios` — HTTP client for Recombee search API
 - `cheerio` — HTML parsing and DOM traversal
-- `playwright` — used internally by fetcher (fallback)
+- `playwright` — listed as dependency (not currently used in fetcher)
 - `typescript` — compilation
 
 **Node (frontend):**
