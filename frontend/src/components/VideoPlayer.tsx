@@ -23,6 +23,11 @@ export default function VideoPlayer({ src, poster, title }: VideoPlayerProps) {
 
     const startPlayback = async () => {
       try {
+        // Proxy HLS streams through our server to avoid CORS and Referer blocking
+        const proxyUrl = src.startsWith('http')
+          ? `/api/hls?url=${encodeURIComponent(src)}`
+          : src;
+
         if (src.endsWith('.m3u8')) {
           // Use hls.js for HLS streams
           const Hls = (await import('hls.js')).default;
@@ -33,7 +38,7 @@ export default function VideoPlayer({ src, poster, title }: VideoPlayerProps) {
               lowLatencyMode: true,
               backBufferLength: 30,
             });
-            hls.loadSource(src);
+            hls.loadSource(proxyUrl);
             hls.attachMedia(video);
             hls.on(Hls.Events.MANIFEST_PARSED, () => {
               setIsLoading(false);
@@ -49,7 +54,7 @@ export default function VideoPlayer({ src, poster, title }: VideoPlayerProps) {
             });
           } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
             // Native HLS support (Safari)
-            video.src = src;
+            video.src = proxyUrl;
             video.addEventListener('loadedmetadata', () => {
               setIsLoading(false);
               video.play().catch(() => {});
@@ -60,7 +65,7 @@ export default function VideoPlayer({ src, poster, title }: VideoPlayerProps) {
           }
         } else {
           // Direct video file
-          video.src = src;
+          video.src = proxyUrl;
           video.addEventListener('loadedmetadata', () => {
             setIsLoading(false);
             video.play().catch(() => {});
