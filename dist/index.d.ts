@@ -8,5 +8,5 @@ export { Client } from './client';
 export { Video } from './video';
 export { Cache } from './cache';
 export { CloudflareFetcher } from './fetcher';
-export type { VideoAttributes, VideoQuality, SearchOptions, ClientConfig, } from './types';
+export type { VideoAttributes, VideoQuality, SearchOptions, ClientConfig, GenreInfo, MakerInfo, VideoSummary, BrowseResult, } from './types';
 //# sourceMappingURL=index.d.ts.map

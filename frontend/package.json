@@ -8,10 +8,11 @@
     "start": "next start"
   },
   "dependencies": {
+    "hls.js": "^1.6.16",
+    "missav-api": "file:..",
     "next": "^15.1.0",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0",
-    "missav-api": "file:.."
+    "react-dom": "^19.0.0"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",

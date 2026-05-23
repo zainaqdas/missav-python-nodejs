@@ -20,6 +20,32 @@ export interface SearchOptions {
     /** Maximum number of concurrent requests when resolving video details (default: 10) */
     maxWorkers?: number;
 }
+/** Summary info for a genre */
+export interface GenreInfo {
+    name: string;
+    slug: string;
+    url: string;
+}
+/** Summary info for a maker/studio */
+export interface MakerInfo {
+    name: string;
+    slug: string;
+    url: string;
+}
+/** Lightweight video info from listing pages (no m3u8 — need to fetch individual page) */
+export interface VideoSummary {
+    videoCode: string;
+    title: string;
+    thumbnail: string;
+    url: string;
+}
+/** Result of a browse (genre / maker / new) request */
+export interface BrowseResult {
+    videos: VideoSummary[];
+    page: number;
+    totalPages: number;
+    title: string;
+}
 /** Configuration for the HTTP client */
 export interface ClientConfig {
     /** Request timeout in seconds (default: 30) */

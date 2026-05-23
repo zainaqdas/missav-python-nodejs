@@ -14,4 +14,8 @@ export type {
   VideoQuality,
   SearchOptions,
   ClientConfig,
+  GenreInfo,
+  MakerInfo,
+  VideoSummary,
+  BrowseResult,
 } from './types';
