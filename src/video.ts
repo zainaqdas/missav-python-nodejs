@@ -177,6 +177,15 @@ export class Video {
     return ogImage;
   }
 
+  /** The video duration in seconds. */
+  async getDuration(): Promise<number | undefined> {
+    await this.ensureLoaded();
+    const durationMeta = this.$!('meta[property="video:duration"]').attr('content');
+    if (!durationMeta) return undefined;
+    const parsed = parseInt(durationMeta, 10);
+    return isNaN(parsed) ? undefined : parsed;
+  }
+
   /** Get all video attributes in one call. */
   async getAllAttributes(): Promise<VideoAttributes> {
     const [
@@ -190,6 +199,7 @@ export class Video {
       etiquette,
       m3u8BaseUrl,
       thumbnail,
+      duration,
     ] = await Promise.all([
       this.getTitle(),
       this.getPublishDate(),
@@ -201,6 +211,7 @@ export class Video {
       this.getEtiquette(),
       this.getM3u8BaseUrl(),
       this.getThumbnail(),
+      this.getDuration(),
     ]);
 
     return {
@@ -214,6 +225,7 @@ export class Video {
       etiquette,
       m3u8BaseUrl,
       thumbnail,
+      duration,
     };
   }
 }

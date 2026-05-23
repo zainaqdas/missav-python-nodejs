@@ -191,9 +191,18 @@ class Video {
         }
         return ogImage;
     }
+    /** The video duration in seconds. */
+    async getDuration() {
+        await this.ensureLoaded();
+        const durationMeta = this.$('meta[property="video:duration"]').attr('content');
+        if (!durationMeta)
+            return undefined;
+        const parsed = parseInt(durationMeta, 10);
+        return isNaN(parsed) ? undefined : parsed;
+    }
     /** Get all video attributes in one call. */
     async getAllAttributes() {
-        const [title, publishDate, videoCode, titleOriginalJapanese, genres, series, manufacturer, etiquette, m3u8BaseUrl, thumbnail,] = await Promise.all([
+        const [title, publishDate, videoCode, titleOriginalJapanese, genres, series, manufacturer, etiquette, m3u8BaseUrl, thumbnail, duration,] = await Promise.all([
             this.getTitle(),
             this.getPublishDate(),
             this.getVideoCode(),
@@ -204,6 +213,7 @@ class Video {
             this.getEtiquette(),
             this.getM3u8BaseUrl(),
             this.getThumbnail(),
+            this.getDuration(),
         ]);
         return {
             title,
@@ -216,6 +226,7 @@ class Video {
             etiquette,
             m3u8BaseUrl,
             thumbnail,
+            duration,
         };
     }
 }

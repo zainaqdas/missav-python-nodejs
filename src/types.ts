@@ -10,6 +10,8 @@ export interface VideoAttributes {
   etiquette: string;
   m3u8BaseUrl: string;
   thumbnail: string;
+  /** Duration in seconds */
+  duration?: number;
 }
 
 /** Quality options for HLS stream selection */

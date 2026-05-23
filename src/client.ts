@@ -277,7 +277,8 @@ export class Client {
 
       const img = $(el).find('img').first();
       const title = $(el).attr('title') || img.attr('alt') || '';
-      const thumbnail = img.attr('src') || img.attr('data-src') || '';
+      // data-src has the real URL (lazy-loaded); src is a placeholder
+      const thumbnail = img.attr('data-src') || img.attr('src') || '';
 
       const fullUrl = href.startsWith('http') ? href : `https://missav.ws${href}`;
       videos.push({ videoCode, title, thumbnail, url: fullUrl });
@@ -389,14 +390,15 @@ export class Client {
       seen.add(videoCode);
 
       const img = $(el).find('img').first();
-      const thumbnail = img.attr('src') || img.attr('data-src') || '';
+      // data-src has the real URL (lazy-loaded); src is a placeholder
+      const thumbnail = img.attr('data-src') || img.attr('src') || '';
 
       videos.push({
-        videoCode,
-        title: $(el).attr('title') || img.attr('alt') || videoCode,
-        thumbnail,
-        url: href.startsWith('http') ? href : `https://missav.ws${href}`,
-      });
+          videoCode,
+          title: $(el).attr('title') || img.attr('alt') || videoCode,
+          thumbnail,
+          url: href.startsWith('http') ? href : `https://missav.ws${href}`,
+        });
     });
 
     return videos;

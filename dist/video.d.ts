@@ -49,6 +49,8 @@ export declare class Video {
     getM3u8BaseUrl(): Promise<string>;
     /** The video thumbnail URL. */
     getThumbnail(): Promise<string>;
+    /** The video duration in seconds. */
+    getDuration(): Promise<number | undefined>;
     /** Get all video attributes in one call. */
     getAllAttributes(): Promise<VideoAttributes>;
 }

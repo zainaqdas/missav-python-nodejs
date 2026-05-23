@@ -1,15 +1,17 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import Plyr from 'plyr';
+import 'plyr/dist/plyr.css';
 
 interface VideoPlayerProps {
   src: string;
   poster?: string;
-  title?: string;
 }
 
-export default function VideoPlayer({ src, poster, title }: VideoPlayerProps) {
+export default function VideoPlayer({ src, poster }: VideoPlayerProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const playerRef = useRef<Plyr | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -21,15 +23,45 @@ export default function VideoPlayer({ src, poster, title }: VideoPlayerProps) {
     setIsLoading(true);
     setError(null);
 
+    // Build proxy URL
+    const proxyUrl = src.startsWith('http')
+      ? `/api/hls?url=${encodeURIComponent(src)}`
+      : src;
+
+    const initPlayer = () => {
+      playerRef.current = new Plyr(video, {
+        controls: [
+          'play-large',
+          'rewind',
+          'play',
+          'fast-forward',
+          'progress',
+          'current-time',
+          'duration',
+          'mute',
+          'volume',
+          'settings',
+          'fullscreen',
+        ],
+        settings: ['speed'],
+        speed: {
+          selected: 1,
+          options: [0.5, 0.75, 1, 1.25, 1.5, 1.75, 2],
+        },
+        seekTime: 10,
+        ratio: '16:9',
+        resetOnEnd: true,
+        fullscreen: { enabled: true, fallback: true, iosNative: true },
+        keyboard: { focused: true, global: true },
+        tooltips: { controls: true, seek: true },
+        storage: { enabled: true, key: 'plyr' },
+      });
+      setIsLoading(false);
+    };
+
     const startPlayback = async () => {
       try {
-        // Proxy HLS streams through our server to avoid CORS and Referer blocking
-        const proxyUrl = src.startsWith('http')
-          ? `/api/hls?url=${encodeURIComponent(src)}`
-          : src;
-
         if (src.endsWith('.m3u8')) {
-          // Use hls.js for HLS streams
           const Hls = (await import('hls.js')).default;
 
           if (Hls.isSupported()) {
@@ -41,10 +73,8 @@ export default function VideoPlayer({ src, poster, title }: VideoPlayerProps) {
             hls.loadSource(proxyUrl);
             hls.attachMedia(video);
             hls.on(Hls.Events.MANIFEST_PARSED, () => {
-              setIsLoading(false);
-              video.play().catch(() => {
-                // Autoplay blocked — user will need to click play
-              });
+              initPlayer();
+              video.play().catch(() => {});
             });
             hls.on(Hls.Events.ERROR, (_event: any, data: any) => {
               if (data.fatal) {
@@ -52,11 +82,19 @@ export default function VideoPlayer({ src, poster, title }: VideoPlayerProps) {
                 setIsLoading(false);
               }
             });
+
+            // Safety timeout: remove loading overlay after 20s even if manifest hasn't parsed
+            const loadingTimeout = setTimeout(() => {
+              setIsLoading(false);
+            }, 20000);
+            hls.on(Hls.Events.MANIFEST_PARSED, () => {
+              clearTimeout(loadingTimeout);
+            });
           } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-            // Native HLS support (Safari)
+            // Native HLS (Safari)
             video.src = proxyUrl;
             video.addEventListener('loadedmetadata', () => {
-              setIsLoading(false);
+              initPlayer();
               video.play().catch(() => {});
             });
           } else {
@@ -67,7 +105,7 @@ export default function VideoPlayer({ src, poster, title }: VideoPlayerProps) {
           // Direct video file
           video.src = proxyUrl;
           video.addEventListener('loadedmetadata', () => {
-            setIsLoading(false);
+            initPlayer();
             video.play().catch(() => {});
           });
         }
@@ -80,29 +118,33 @@ export default function VideoPlayer({ src, poster, title }: VideoPlayerProps) {
     startPlayback();
 
     return () => {
+      if (playerRef.current) {
+        playerRef.current.destroy();
+        playerRef.current = null;
+      }
       if (hls) {
         hls.destroy();
       }
       video.removeAttribute('src');
       video.load();
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [src]);
 
   return (
-    <div className="relative w-full aspect-video bg-black rounded-2xl overflow-hidden group">
-      {/* Video element */}
+    <div className="relative w-full aspect-video bg-black rounded-2xl overflow-hidden">
+      {/* Video element — Plyr will attach its controls here */}
       <video
         ref={videoRef}
-        className="w-full h-full object-contain cursor-pointer"
+        className="w-full h-full"
         poster={poster}
-        controls
         playsInline
         preload="metadata"
       />
 
       {/* Loading overlay */}
       {isLoading && (
-        <div className="absolute inset-0 flex items-center justify-center bg-black/60">
+        <div className="absolute inset-0 flex items-center justify-center bg-black/60 z-10 pointer-events-none">
           <div className="flex flex-col items-center gap-3">
             <div className="w-10 h-10 border-2 border-primary-500/30 border-t-primary-500 rounded-full animate-spin" />
             <p className="text-sm text-gray-400">Loading stream...</p>
@@ -112,7 +154,7 @@ export default function VideoPlayer({ src, poster, title }: VideoPlayerProps) {
 
       {/* Error overlay */}
       {error && (
-        <div className="absolute inset-0 flex items-center justify-center bg-black/80">
+        <div className="absolute inset-0 flex items-center justify-center bg-black/80 z-10">
           <div className="text-center max-w-md px-6">
             <svg
               className="w-12 h-12 text-red-400 mx-auto mb-3"
@@ -130,13 +172,6 @@ export default function VideoPlayer({ src, poster, title }: VideoPlayerProps) {
             <p className="text-sm text-red-300">{error}</p>
             <p className="text-xs text-gray-500 mt-2">The stream URL may be expired or unavailable.</p>
           </div>
-        </div>
-      )}
-
-      {/* Title overlay (bottom) */}
-      {title && !isLoading && !error && (
-        <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-          <p className="text-sm text-white font-medium truncate">{title}</p>
         </div>
       )}
     </div>

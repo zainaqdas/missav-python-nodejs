@@ -151,7 +151,6 @@ export default function VideoPage({ params }: VideoPageProps) {
               <VideoPlayer
                 src={video.m3u8BaseUrl}
                 poster={!imageError ? video.thumbnail : undefined}
-                title={video.title}
               />
             ) : !imageError ? (
               <div className="glass-card rounded-2xl overflow-hidden">
@@ -201,6 +200,12 @@ export default function VideoPage({ params }: VideoPageProps) {
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
               <MetaItem label="Video Code" value={video.videoCode} />
               <MetaItem label="Release Date" value={video.publishDate} />
+              {video.duration && (
+                <MetaItem
+                  label="Duration"
+                  value={`${Math.floor(video.duration / 60)}m ${video.duration % 60}s`}
+                />
+              )}
               {video.series && <MetaItem label="Series" value={video.series} />}
               {video.manufacturer && <MetaItem label="Manufacturer" value={video.manufacturer} />}
               {video.etiquette && <MetaItem label="Label" value={video.etiquette} />}
