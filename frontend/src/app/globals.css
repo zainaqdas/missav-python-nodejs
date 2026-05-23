@@ -1,0 +1,70 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+@layer base {
+  body {
+    @apply bg-surface text-gray-100 antialiased;
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+
+  ::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-surface;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-primary-800/50 rounded-full;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-primary-700/60;
+  }
+}
+
+@layer components {
+  .glass-card {
+    @apply bg-surface-card/80 backdrop-blur-sm border border-primary-900/30 rounded-xl;
+  }
+
+  .glow {
+    box-shadow: 0 0 20px rgba(225, 29, 72, 0.15),
+                0 0 40px rgba(225, 29, 72, 0.05);
+  }
+
+  .glow-text {
+    text-shadow: 0 0 20px rgba(225, 29, 72, 0.5),
+                 0 0 40px rgba(225, 29, 72, 0.3);
+  }
+
+  .shimmer-bg {
+    background: linear-gradient(
+      90deg,
+      rgba(30, 12, 20, 0.4) 0%,
+      rgba(225, 29, 72, 0.1) 50%,
+      rgba(30, 12, 20, 0.4) 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 2s infinite linear;
+  }
+
+  .btn-primary {
+    @apply bg-gradient-to-r from-primary-600 to-pink-600 
+           text-white font-medium px-6 py-2.5 rounded-lg
+           hover:from-primary-500 hover:to-pink-500
+           active:from-primary-700 active:to-pink-700
+           transition-all duration-200 ease-out
+           disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+}
+
+@layer utilities {
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-primary-400 via-pink-400 to-rose-300;
+  }
+}

@@ -66,7 +66,7 @@ class Client {
             }
         }
         this.http = axios_1.default.create(axiosConfig);
-        this.fetcher = new fetcher_1.CloudflareFetcher(this.http);
+        this.fetcher = new fetcher_1.CloudflareFetcher();
     }
     /**
      * Fetch a video by its missAV URL.

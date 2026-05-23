@@ -1,3 +1,8 @@
 node_modules/
 .playwright-profile-*
 *.log
+
+# Next.js frontend build artifacts
+frontend/.next/
+frontend/node_modules/
+frontend/next-env.d.ts

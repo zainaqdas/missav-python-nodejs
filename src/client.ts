@@ -74,7 +74,7 @@ export class Client {
     }
 
     this.http = axios.create(axiosConfig);
-    this.fetcher = new CloudflareFetcher(this.http);
+    this.fetcher = new CloudflareFetcher();
   }
 
   /**
