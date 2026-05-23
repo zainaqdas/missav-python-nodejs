@@ -224,8 +224,24 @@ export default function VideoPage({ params }: VideoPageProps) {
                 />
               )}
               {video.series && <MetaItem label="Series" value={video.series} />}
-              {video.manufacturer && <MetaItem label="Manufacturer" value={video.manufacturer} />}
-              {video.etiquette && <MetaItem label="Label" value={video.etiquette} />}
+              {video.manufacturer && (
+                <div className="glass-card rounded-lg px-4 py-3">
+                  <p className="text-[10px] uppercase tracking-wider text-gray-500 mb-1">
+                    Manufacturer
+                  </p>
+                  {video.makerSlug ? (
+                    <Link
+                      href={`/browse/makers/${encodeURIComponent(video.makerSlug)}`}
+                      className="text-sm font-medium text-primary-300 hover:text-primary-200 transition-colors hover:underline"
+                    >
+                      {video.manufacturer}
+                    </Link>
+                  ) : (
+                    <p className="text-sm font-medium text-gray-200">{video.manufacturer}</p>
+                  )}
+                </div>
+              )}
+              {video.tag && <MetaItem label="Tag" value={video.tag} />}
             </div>
 
             {/* Genres */}

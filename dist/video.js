@@ -139,19 +139,33 @@ class Video {
         const el = metaDivs.eq(4).find('a').first();
         return el.text().trim();
     }
-    /** The manufacturer. */
+    /** The manufacturer name. */
     async getManufacturer() {
         await this.ensureLoaded();
         const metaDivs = this.getMetaDivs();
         const el = metaDivs.eq(5).find('a').first();
         return el.text().trim();
     }
-    /** The etiquette / label. */
-    async getEtiquette() {
+    /** The "Tag" field (e.g. "FC2", "Caribbeancom" — different from genre). */
+    async getTag() {
         await this.ensureLoaded();
         const metaDivs = this.getMetaDivs();
-        const el = metaDivs.eq(6).find('a').first();
+        const el = metaDivs.eq(6).find('span.font-medium').first();
         return el.text().trim();
+    }
+    /**
+     * The maker URL slug extracted from the manufacturer link href.
+     * e.g. if manufacturer link is /en/makers/Fc2, returns "Fc2"
+     */
+    async getMakerSlug() {
+        await this.ensureLoaded();
+        const metaDivs = this.getMetaDivs();
+        const href = metaDivs.eq(5).find('a').first().attr('href');
+        if (!href)
+            return '';
+        // Extract slug from URL like /en/makers/Fc2 or https://missav.ws/en/makers/Fc2
+        const match = href.match(/\/makers\/([^/?]+)/i);
+        return match?.[1] || '';
     }
     /**
      * The HLS master playlist URL (m3u8).
@@ -202,7 +216,7 @@ class Video {
     }
     /** Get all video attributes in one call. */
     async getAllAttributes() {
-        const [title, publishDate, videoCode, titleOriginalJapanese, genres, series, manufacturer, etiquette, m3u8BaseUrl, thumbnail, duration,] = await Promise.all([
+        const [title, publishDate, videoCode, titleOriginalJapanese, genres, series, manufacturer, tag, makerSlug, m3u8BaseUrl, thumbnail, duration,] = await Promise.all([
             this.getTitle(),
             this.getPublishDate(),
             this.getVideoCode(),
@@ -210,7 +224,8 @@ class Video {
             this.getGenres(),
             this.getSeries(),
             this.getManufacturer(),
-            this.getEtiquette(),
+            this.getTag(),
+            this.getMakerSlug(),
             this.getM3u8BaseUrl(),
             this.getThumbnail(),
             this.getDuration(),
@@ -223,7 +238,8 @@ class Video {
             genres,
             series,
             manufacturer,
-            etiquette,
+            tag,
+            makerSlug,
             m3u8BaseUrl,
             thumbnail,
             duration,

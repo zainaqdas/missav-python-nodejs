@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import type { VideoAttributes } from 'missav-api';
+import { useSearchParams } from 'next/navigation';
 import SearchBar from '@/components/SearchBar';
 import VideoGrid from '@/components/VideoGrid';
 import VideoCard from '@/components/VideoCard';
@@ -11,6 +12,9 @@ import { searchVideos, browseVideos } from '@/lib/api';
 const POPULAR_TAGS = ['FC2-PPV', 'JUL', 'STARS', 'STAR', 'ABF', 'Heyzo', 'Caribbeancom', '1pondo'];
 
 export default function HomePage() {
+  const searchParams = useSearchParams();
+  const queryParam = searchParams.get('q');
+  const hasAutoSearched = useRef(false);
   const [videos, setVideos] = useState<VideoAttributes[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -18,6 +22,15 @@ export default function HomePage() {
   const [currentQuery, setCurrentQuery] = useState('');
   const [latestVideos, setLatestVideos] = useState<VideoAttributes[]>([]);
   const [isLoadingLatest, setIsLoadingLatest] = useState(true);
+
+  // Auto-search from URL param on mount
+  useEffect(() => {
+    if (queryParam && !hasAutoSearched.current) {
+      hasAutoSearched.current = true;
+      handleSearch(queryParam);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [queryParam]);
 
   // Fetch latest videos on mount
   useEffect(() => {

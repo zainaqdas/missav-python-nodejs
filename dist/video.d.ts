@@ -36,10 +36,15 @@ export declare class Video {
     getGenres(): Promise<string[]>;
     /** The series name. */
     getSeries(): Promise<string>;
-    /** The manufacturer. */
+    /** The manufacturer name. */
     getManufacturer(): Promise<string>;
-    /** The etiquette / label. */
-    getEtiquette(): Promise<string>;
+    /** The "Tag" field (e.g. "FC2", "Caribbeancom" — different from genre). */
+    getTag(): Promise<string>;
+    /**
+     * The maker URL slug extracted from the manufacturer link href.
+     * e.g. if manufacturer link is /en/makers/Fc2, returns "Fc2"
+     */
+    getMakerSlug(): Promise<string>;
     /**
      * The HLS master playlist URL (m3u8).
      *

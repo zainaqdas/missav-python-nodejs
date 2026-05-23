@@ -7,7 +7,10 @@ export interface VideoAttributes {
     genres: string[];
     series: string;
     manufacturer: string;
-    etiquette: string;
+    /** The "Tag" field from the metadata section (e.g. "FC2", "Caribbeancom") */
+    tag: string;
+    /** URL slug for the maker page (e.g. "Fc2" for missav.ws/en/makers/Fc2) */
+    makerSlug: string;
     m3u8BaseUrl: string;
     thumbnail: string;
     /** Duration in seconds */
