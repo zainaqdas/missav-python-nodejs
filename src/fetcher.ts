@@ -54,6 +54,36 @@ function resolvePythonScript(): string {
 const PYTHON_SCRIPT = resolvePythonScript();
 
 /**
+ * Resolve the Python binary path. Checks for a virtual environment
+ * (created by running `python3 -m venv .` in the project root)
+ * before falling back to the system `python3`.
+ *
+ * This handles systems (e.g. Ubuntu 24.04+) where pip refuses
+ * system-wide installs due to the externally-managed-environment
+ * (PEP 668) restriction.
+ */
+function resolvePythonBinary(): string {
+  const candidates = [
+    // Venv at project root (cwd parent, e.g. frontend/ -> ../)
+    path.resolve(process.cwd(), '..', 'bin', 'python3'),
+    // Venv at cwd (e.g. running from project root directly)
+    path.resolve(process.cwd(), 'bin', 'python3'),
+    // Venv relative to the script (dist/ -> ../)
+    path.resolve(__dirname, '..', 'bin', 'python3'),
+  ];
+
+  for (const candidate of candidates) {
+    if (fs.existsSync(candidate)) {
+      return candidate;
+    }
+  }
+
+  return 'python3';
+}
+
+const PYTHON_BIN = resolvePythonBinary();
+
+/**
  * Fetcher that uses Python's curl_cffi library for Chrome TLS
  * impersonation. This bypasses Cloudflare without needing a full
  * browser — fast and reliable (~1-2s per request).
@@ -78,7 +108,7 @@ export class CloudflareFetcher {
    */
   async fetch(url: string): Promise<string> {
     try {
-      const result = await execFileAsync('python3', [PYTHON_SCRIPT, url], {
+      const result = await execFileAsync(PYTHON_BIN, [PYTHON_SCRIPT, url], {
         timeout: 30_000,
         maxBuffer: 1024 * 1024 * 10, // 10 MB max output
       });
@@ -96,7 +126,8 @@ export class CloudflareFetcher {
       const message = err instanceof Error ? err.message : String(err);
       throw new Error(
         `Failed to fetch page: ${message}\n` +
-          `Ensure Python 3 and curl_cffi are installed: pip3 install curl-cffi`
+          `Ensure Python 3 and curl_cffi are installed:\n` +
+          `  python3 -m venv /path/to/venv && source /path/to/venv/bin/activate && pip install curl-cffi`
       );
     }
   }
