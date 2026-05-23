@@ -1,0 +1,32 @@
+{
+  "name": "missav-api",
+  "version": "1.0.0",
+  "description": "Unofficial Node.js/TypeScript API for missav.ws — ported from the Python missAV_api package",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist/**/*",
+    "src/fetcher_helper.py"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "missav",
+    "api",
+    "scraper",
+    "hls",
+    "video"
+  ],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "@types/node": "^25.9.1",
+    "axios": "^1.16.1",
+    "cheerio": "^1.2.0",
+    "playwright": "^1.60.0",
+    "typescript": "^6.0.3"
+  }
+}
